@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="af">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Afrikaans Avontuur: Red die Taaldorpie! (Graad 4 FAL)</title>
+  <style>
+    :root{
+      --bg:#f6fbff; --card:#ffffff; --ink:#1d3557; --muted:#5c6b8a;
+      --accent:#ffb703; --accent2:#8ecae6; --correct:#2a9d8f; --wrong:#e76f51;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+      color:var(--ink); background:linear-gradient(180deg,#e3f2fd 0%, var(--bg) 60%); min-height:100dvh; display:flex; flex-direction:column;}
+    header{display:flex; align-items:center; gap:12px; padding:14px 16px; background:#eaf6ff; border-bottom:1px solid #d8eefe; position:sticky; top:0; z-index:10;}
+    header img.logo{width:40px; height:40px; border-radius:12px; background:#fff; border:2px solid var(--accent2)}
+    header h1{font-size:18px; margin:0; line-height:1.2}
+    #app{width:min(1000px,96vw); margin:18px auto; flex:1;}
+    .card{background:var(--card); border:1px solid #e6eef9; border-radius:18px; box-shadow:0 8px 20px rgba(29,53,87,.06); padding:18px;}
+    .grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+    .btn{appearance:none; border:0; border-radius:12px; padding:12px 16px; font-weight:600; background:var(--accent2); color:#033a52; cursor:pointer; transition:transform .04s ease, box-shadow .2s ease; box-shadow:0 4px 0 #6bb6d3;}
+    .btn:hover{transform:translateY(-1px)} .btn:active{transform:translateY(2px)}
+    .btn.secondary{background:#ffe08a; box-shadow:0 4px 0 #f2b800; color:#5b3b00}
+    .btn.ghost{background:#fff; box-shadow:inset 0 0 0 2px #cfe8ff; color:#0c3b5e}
+    .tag{display:inline-block; padding:4px 10px; border-radius:999px; background:#eef7ff; color:#0d4570; font-size:12px;}
+    .level{border:2px solid #dcedff; border-radius:16px; padding:14px; cursor:pointer; background:#fff; position:relative; min-height:120px;}
+    .level h3{margin:0 0 8px 0; font-size:16px} .level p{margin:0; color:var(--muted); font-size:13px}
+    .level .stars{position:absolute; right:12px; top:12px; font-size:14px; color:#f1a203}
+    .hidden{display:none}
+    .qtext{font-size:18px; margin:6px 0 12px}
+    .hint{color:var(--muted); font-size:13px; font-style:italic}
+    .options{display:grid; gap:10px; margin:10px 0}
+    .opt{padding:10px 12px; border-radius:12px; border:2px solid #e7f0ff; cursor:pointer; background:#fff;}
+    .opt.selected{border-color:#7bc1ff; background:#f5fbff}
+    .feedback{margin-top:10px; padding:10px; border-radius:12px; font-weight:600;}
+    .ok{background:#e8fff8; color:#0a5e51; border:1px solid #bff2e5}
+    .no{background:#fff0ec; color:#7b2a17; border:1px solid #ffd1c5}
+    .statusbar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px}
+    progress{width:100%; height:12px; border:0; border-radius:999px; background:#e9f4ff}
+    progress::-webkit-progress-bar{background:#e9f4ff; border-radius:999px}
+    progress::-webkit-progress-value{background:linear-gradient(90deg,#8ecae6,#ffb703); border-radius:999px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .input{padding:10px 12px; border-radius:10px; border:2px solid #e7f0ff; width:100%; max-width:460px; font-size:16px;}
+    .chips{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0}
+    .chip{padding:8px 10px; border-radius:999px; background:#f0f8ff; border:1px solid #cbe6ff; cursor:grab; user-select:none}
+    .dropzone{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin:10px 0;}
+    .slot{min-height:44px; background:#fcfeff; border:2px dashed #cfe6ff; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:13px; color:#6b88a6; padding:6px;}
+    .slot.filled{border-style:solid; background:#f7fbff; color:#0b3a59}
+    .pill{display:inline-block; padding:3px 8px; border-radius:999px; background:#eef7ff; border:1px solid #cfe6ff; font-size:12px}
+    footer{padding:16px; text-align:center; color:#6b7b95; font-size:12px}
+    .mini{font-size:11px; color:#7b8ba5}
+    .sound-toggle{margin-left:8px; font-size:12px; color:#0c3b5e; cursor:pointer}
+  </style>
+</head>
+<body>
+  <header>
+    <img class="logo" alt="Taaldorpie" src="data:image/svg+xml;utf8,<?xml version='1.0'?> <svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect width='100%' height='100%' rx='16' fill='%23fff'/><circle cx='40' cy='40' r='22' fill='%238ecae6'/><text x='40' y='47' font-family='Verdana' font-size='22' text-anchor='middle' fill='%23033a52'>Aa</text></svg>">
+    <h1>Afrikaans Avontuur: <span class="mini">Red die Taaldorpie! (Graad 4 FAL)</span>
+      <span id="soundToggle" class="sound-toggle">🔊 klank AAN</span>
+    </h1>
+  </header>
+
+  <main id="app">
+    <!-- Start / Map Screen -->
+    <section id="map" class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <div class="tag">Kies 'n plek in die Taaldorpie (onderwerp)</div>
+          <h2 style="margin:6px 0 0 0;">Avontuurkaart</h2>
+        </div>
+        <div class="row">
+          <span class="pill">Punte: <strong id="scoreSpan">0</strong></span>
+          <span class="pill">Voltooi: <strong id="doneSpan">0</strong></span>
+        </div>
+      </div>
+      <div class="grid" id="levelGrid"></div>
+      <div style="margin-top:10px;" class="mini">
+        *Tip: Open in Moodle as a URL or embed in a Page with an iframe.  
+        <!-- Example iframe for Moodle Page:
+        <iframe src="https://YOUR_GITHUB_PAGES_URL" width="100%" height="700" style="border:0;border-radius:12px;"></iframe>
+        -->
+      </div>
+    </section>
+
+    <!-- Gameplay Screen -->
+    <section id="play" class="card hidden">
+      <div class="statusbar">
+        <div class="row">
+          <button class="btn ghost" id="backBtn">← Kaart</button>
+          <span class="pill" id="topicPill">Onderwerp</span>
+        </div>
+        <div class="row" style="flex:1">
+          <progress id="prog" value="0" max="1"></progress>
+          <span class="pill">Vraag <span id="qIndex">1</span>/<span id="qTotal">1</span></span>
+          <span class="pill">Punte: <strong id="scoreSpan2">0</strong></span>
+        </div>
+      </div>
+
+      <div id="compWrap" class="hidden"></div> <!-- comprehension passage container -->
+
+      <div id="qWrap"></div>
+      <div id="fb" class="feedback hidden"></div>
+
+      <div class="row" style="justify-content:space-between; margin-top:12px">
+        <em class="hint" id="hintArea"></em>
+        <div class="row">
+          <button class="btn ghost" id="hintBtn">Wenk</button>
+          <button class="btn secondary" id="checkBtn">Dien in</button>
+          <button class="btn" id="nextBtn" disabled>Volgende</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © Taaldorpie • Graad 4 FAL • HTML/CSS/JS • Vordering word plaaslik gestoor (localStorage)
+  </footer>
+
+  <script>
+    /************* SOUND ENGINE (Web Audio API) *************/
+    let audioCtx = null;
+    let soundEnabled = true;
+    const soundToggle = document.getElementById("soundToggle");
+
+    function initAudio(){
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    function playTone(type="click"){
+      if(!soundEnabled) return;
+      initAudio();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      let freq = 440, dur = 0.12, typeW = "sine";
+      if(type==="click"){ freq=500; dur=0.06; typeW="square"; }
+      if(type==="correct"){ freq=740; dur=0.18; typeW="triangle"; }
+      if(type==="wrong"){ freq=220; dur=0.22; typeW="sawtooth"; }
+      if(type==="complete"){ freq=660; dur=0.16; typeW="triangle"; }
+      o.type = typeW; o.frequency.setValueAtTime(freq,audioCtx.currentTime);
+      g.gain.setValueAtTime(0.0001,audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.3, audioCtx.currentTime+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+dur);
+      o.start(); o.stop(audioCtx.currentTime+dur);
+    }
+    soundToggle.addEventListener("click", ()=>{
+      soundEnabled = !soundEnabled;
+      soundToggle.textContent = soundEnabled ? "🔊 klank AAN" : "🔈 klank AF";
+      playTone("click");
+    });
+
+    /************* LEVELS *************/
+    const LEVELS = [
+      { id:"meervoude", name:"Meervoud‑Meent", emoji:"🐾", desc:"Maak enkelwoorde meervoud." },
+      { id:"vraagwoorde", name:"Vraagsin‑Vallei", emoji:"❓", desc:"Wie? Waar? Wanneer? Hoe? Wat?" },
+      { id:"stompi", name:"STOMPI‑Straat", emoji:"🛣️", desc:"Bou korrekte woordorde." },
+      { id:"voorsetsels", name:"Voorsetsel‑Plein", emoji:"🧭", desc:"Plek en tyd woorde." },
+      { id:"verklein", name:"Verkleinwoord‑Vlei", emoji:"🧸", desc:"Maak dit klein." },
+      { id:"voegwoorde", name:"Voegwoord‑Vallei", emoji:"🧩", desc:"Voeg sinne saam." },
+      { id:"verlede", name:"Tydtoerusting: Verlede", emoji:"⏳", desc:"Het + ge‑" },
+      { id:"toekoms", name:"Tydtoerusting: Toekoms", emoji:"🚀", desc:"Sal + werkwoord eindig" },
+      { id:"trappe", name:"Taal‑Berg", emoji:"⛰️", desc:"Trappe van vergelyking." },
+      { id:"sinsoorte", name:"Sin‑Sirkus", emoji:"🎪", desc:"Stel, Vraag, Bevel, Uitroep" },
+      { id:"geslag", name:"Karakter‑Kwartier", emoji:"👫", desc:"Manlik & Vroulik" },
+      { id:"versamel", name:"Versamel‑Veld", emoji:"🌾", desc:"Versamelname" },
+      { id:"sinonieme", name:"Sinoniem‑Straat", emoji:"🔁", desc:"Sinonieme & Antonieme" },
+      { id:"lees1", name:"Leesbegrip 1", emoji:"📖", desc:"Kort teks + vrae" },
+      { id:"lees2", name:"Leesbegrip 2", emoji:"📘", desc:"Kort teks + vrae" },
+    ];
+
+    /************* QUESTION BANK *************/
+    // Note: answers are case-insensitive and trimmed.
+    const BANK = {
+      meervoude: [
+        {type:"short", prompt:"Wat is die meervoud van ‘kat’?", answer:["katte"], hint:"*Short vowel: double consonant + -e.*"},
+        {type:"short", prompt:"Wat is die meervoud van ‘boom’?", answer:["bome"], hint:"*oo → -e.*"},
+        {type:"short", prompt:"Wat is die meervoud van ‘sif’?", answer:["siwwe"], hint:"*f → wwe.*"},
+        {type:"mcq", prompt:"Kies die meervoud van ‘boek’.", options:["boeke","boeks","boekes","boek"], answer:0, hint:"*book.*"},
+        {type:"tf", prompt:"‘Vrou’ se meervoud is ‘vrous’.", answer:false, hint:"*Dis ‘vroue’.*"},
+        {type:"mcq", prompt:"Meervoud van ‘huis’?", options:["huise","huisë","huises","huis"], answer:0, hint:"*Add -e.*"},
+        {type:"short", prompt:"Meervoud van ‘kind’?", answer:["kinders"], hint:"*Irregular.*"},
+        {type:"gap", prompt:"Vul in: ‘___’ is die meervoud van ‘blaar’.", answer:["blare"], hint:"*Leaf.*"}
+      ],
+      vraagwoorde: [
+        {type:"mcq", prompt:"___ eet die koek?", options:["Wie","Waar","Wanneer","Hoe"], answer:0, hint:"*Who?*"},
+        {type:"mcq", prompt:"___ gaan ons skool toe? (time)", options:["Wie","Hoe","Wanneer","Waar"], answer:2, hint:"*When?*"},
+        {type:"short", prompt:"Vul die vraagwoord in: ‘___ bly jy?’", answer:["waar"], hint:"*Where?*"},
+        {type:"tf", prompt:"‘Hoeveel’ vra oor hoeveelheid.", answer:true, hint:"*Yes.*"},
+        {type:"gap", prompt:"Vul in: ‘___ is jou gunstelingboek?’", answer:["wat","watter"], hint:"*What/Which?*"},
+        {type:"mcq", prompt:"Kies die sin met ‘Hoekom’.", options:[
+          "Hoekom huil jy?",
+          "Hoeveel boeke het jy?",
+          "Waar woon jy?",
+          "Wanneer is die fees?"
+        ], answer:0, hint:"*Why?*"}
+      ],
+      stompi: [
+        {type:"drag", prompt:"Rangskik STOMPI: ‘Die hond eet vanaand sy kos in die kombuis.’",
+         hint:"*S V1 T O P (no V2/I).*",
+         drag:{
+           chips:["Die hond","eet","vanaand","sy kos","in die kombuis"],
+           slots:[
+             {id:"S", label:"Onderwerp", answer:"Die hond"},
+             {id:"V1", label:"Werkwoord 1", answer:"eet"},
+             {id:"T", label:"Tyd", answer:"vanaand"},
+             {id:"O", label:"Voorwerp", answer:"sy kos"},
+             {id:"P", label:"Plek", answer:"in die kombuis"}
+           ]
+         }
+        },
+        {type:"mcq", prompt:"Wat kom gewoonlik eerste in STOMPI: T of P?", options:["P","T"], answer:1, hint:"*Time before place.*"},
+        {type:"gap", prompt:"Vul in: In STOMPI kom die ____ voor die plek.", answer:["tyd","t"], hint:"*Tyd.*"},
+        {type:"short", prompt:"Skryf die sin met STOMPI: ‘Die kat drink (V) vanmiddag (T) melk (O) by die bak (P).’", answer:["Die kat drink vanmiddag melk by die bak."], hint:"*S V1 T O P.*"},
+        {type:"tf", prompt:"‘maar’ verander die hoofsin se woordorde.", answer:false, hint:"*Groep 1 hou woordorde.*"}
+      ],
+      voorsetsels: [
+        {type:"mcq", prompt:"Ons sit ___ die tafel.", options:["in","op","onder","agter"], answer:2, hint:"*in, on, under*"},
+        {type:"short", prompt:"Hy loop ___ die deur.", answer:["deur"], hint:"*through*"},
+        {type:"tf", prompt:"‘By’ kan plek aandui (by die skool).", answer:true, hint:"*Yes.*"},
+        {type:"gap", prompt:"Vul in: Die boek is ___ die tas.", answer:["in"], hint:"*in the bag*"},
+        {type:"mcq", prompt:"Die hond slaap ___ die mat.", options:["oor","op","tussen","uit"], answer:1, hint:"*on*"}
+      ],
+      verklein: [
+        {type:"mcq", prompt:"Verkleinwoord van ‘kat’?", options:["katjie","kattjie","katetjie","katiekie"], answer:0, hint:"*kitten*"},
+        {type:"short", prompt:"‘seun’ → ?", answer:["seuntjie"], hint:"*young boy*"},
+        {type:"short", prompt:"‘huis’ → ?", answer:["huisie"], hint:"*-ie*"},
+        {type:"mcq", prompt:"Verkleinwoord van ‘boom’?", options:["boompietjie","boompjie","boompietje","boompie"], answer:3, hint:"*small tree.*"},
+        {type:"gap", prompt:"Vul in: ‘broek’ → ____", answer:["broekie"], hint:"*small pants*"}
+      ],
+      voegwoorde: [
+        {type:"tf", prompt:"‘maar’ (Groep 1) verander die woordorde.", answer:false, hint:"*Groep 1.*"},
+        {type:"mcq", prompt:"‘Ek is moeg, ___ ek slaap.’", options:["maar","want","dus","daarom"], answer:1, hint:"*because*"},
+        {type:"gap", prompt:"Vul in: ‘Hy is laat; ___ hardloop hy.’", answer:["dus","daarom"], hint:"*so/therefore*"},
+        {type:"mcq", prompt:"Kies Groep 2-voegwoord.", options:["en","maar","dus","want"], answer:2, hint:"*Group 2*"},
+        {type:"short", prompt:"Skryf ‘Ek eet. Ek is honger.’ met ‘want’.", answer:["Ek eet, want ek is honger."], hint:"*Groep 1:woordorde bly dieselfde.*"}
+      ],
+      verlede: [
+        {type:"short", prompt:"Verlede: ‘Die meisie speel buite.’", answer:["Die meisie het buite gespeel."], hint:"*het + ge‑*"},
+        {type:"mcq", prompt:"Verlede: ‘Ons kyk TV.’", options:["Ons het TV gekyk.","Ons het TV kyk.","Ons gekyk TV.","Ons het gekyk TV"], answer:0, hint:"*het + ge‑ + aan einde*"},
+        {type:"tf", prompt:"‘was’ het nie ‘ge‑’ nodig nie.", answer:true, hint:"*is/was*"},
+        {type:"gap", prompt:"Vul in: ‘Hy ___ gister huis toe geloop.’", answer:["het"], hint:"*walked*"},
+        {type:"short", prompt:"Verlede: ‘Ek eet brood.’", answer:["Ek het brood geëet."], hint:"*Take note of the spelling!*"}
+      ],
+      toekoms: [
+        {type:"short", prompt:"Toekoms: ‘Hulle eet brood.’", answer:["Hulle sal brood eet."], hint:"*will eat bread in the future*"},
+        {type:"gap", prompt:"Vul in: ‘Ek ___ môre swem.’", answer:["sal"], hint:"*will swim tomorrow*"},
+        {type:"mcq", prompt:"Kies die toekomende tyd.", options:[
+          "Sy sal die boek lees.",
+          "Sy die boek sal lees.",
+          "Sy sal lees die boek."
+        ], answer:0, hint:"*sal + O + V op einde*"},
+        {type:"tf", prompt:"In die toekoms skuif die hoofwerkwoord na die einde.", answer:true, hint:"*Does the verb move in the future tense?*"},
+        {type:"short", prompt:"Toekoms: ‘Ons speel vandag.’", answer:["Ons sal vandag speel."], hint:"*sal + V eindig*"}
+      ],
+      trappe: [
+        {type:"mcq", prompt:"Positief → Vergrotend: ‘mooi’ → ?", options:["mooier","meest mooi","mooiste"], answer:0, hint:"*comparative*"},
+        {type:"short", prompt:"Oortreffende trap van ‘vinnig’?", answer:["vinnigste"], hint:"*Superlative*"},
+        {type:"gap", prompt:"‘goed’ → vergrotend: ____", answer:["beter"], hint:"*good → ?→ best*"},
+        {type:"mcq", prompt:"Kies oortreffende trap van ‘oud’.", options:["ouer","oudste","ouste"], answer:1, hint:"*superlative*"},
+        {type:"short", prompt:"Vergrotende trap van ‘kort’?", answer:["korter"], hint:"*short*"}
+      ],
+      sinsoorte: [
+        {type:"mcq", prompt:"‘Moenie hardloop nie!’ is ŉ ____.", options:["Stelsin","Vraagsin","Bevelsin","Uitroepsin"], answer:2, hint:"*command*"},
+        {type:"tf", prompt:"ŉ Stelsin eindig altyd met ‘.’", answer:true, hint:"*Yes*"},
+        {type:"gap", prompt:"‘Wat is jou naam?’ is ŉ ____", answer:["vraagsin"], hint:"*question*"},
+        {type:"short", prompt:"Skryf as uitroepsin: ‘Dit is koud’", answer:["Dit is koud!"], hint:"*exclamation mark*"},
+        {type:"mcq", prompt:"‘Wat ’n mooi dag!’ is ’n ____", options:["Vraagsin","Uitroepsin","Bevelsin","Stelsin"], answer:1, hint:"*exclamation*"}
+      ],
+      geslag: [
+        {type:"short", prompt:"Vroulike vorm van ‘seun’?", answer:["dogter"], hint:"*boy → girl*"},
+        {type:"mcq", prompt:"Manlike vorm van ‘koningin’?", options:["koning","konyn","koninkie","konker"], answer:0, hint:"*queen ↔ king*"},
+        {type:"tf", prompt:"‘Oom’ se vroulike vorm is ‘tannie’.", answer:true, hint:"*Yes*"},
+        {type:"gap", prompt:"‘bul’ se vroulike vorm: ____", answer:["koei"], hint:"*bull ↔ cow*"},
+        {type:"short", prompt:"Manlike vorm van ‘meisie’?", answer:["seun"], hint:"*girl ↔ boy*"}
+      ],
+      versamel: [
+        {type:"mcq", prompt:"Versamelnaam: ‘’n ___ blomme’", options:["bos","kudde","skool","span"], answer:0, hint:"*bunch*"},
+        {type:"short", prompt:"Versamelnaam vir ‘’n ___ bye’", answer:["swerm"], hint:"*swarm*"},
+        {type:"gap", prompt:"Vul in: ‘’n ___ beeste’", answer:["kudde"], hint:"*herd*"},
+        {type:"mcq", prompt:"Kies die beste versamelnaam: ‘n ___ voëls", options:["kudde","swerm","bos","ry"], answer:1, hint:"*same as bees*"},
+        {type:"short", prompt:"Versamelnaam: ‘n ___ visse", answer:["skool"], hint:"*school of fish*"}
+      ],
+      sinonieme: [
+        {type:"mcq", prompt:"Sinoniem van ‘pragtig’?", options:["lelik","mooi","gou","stadig"], answer:1, hint:"*beautiful*"},
+        {type:"short", prompt:"Sinoniem van ‘bly’?", answer:["gelukkig"], hint:"*happy*"},
+        {type:"gap", prompt:"Antoniem van ‘oud’ is ____", answer:["jonk"], hint:"*opposite*"},
+        {type:"mcq", prompt:"Antoniem van ‘vinnig’?", options:["stadig","sag","groot","wyd"], answer:0, hint:"*slow*"},
+        {type:"short", prompt:"Sinoniem van ‘groot’?", answer:["enorm"], hint:"*huge*"}
+      ],
+      // --- Comprehension 1: max 30 words text ---
+      lees1: [
+        {type:"passage", text:"Luna stap vroeg skool toe. Sy dra ‘n rooi tas en eet ‘n appel. Voor die hek groet sy haar vriend, Timo.", hint:"*Read carefully.*"},
+        {type:"mcq", prompt:"Wanneer stap Luna skool toe?", options:["laat","vroeg","na skool","saans"], answer:1, hint:"*When?*"},
+        {type:"short", prompt:"Wat dra sy?", answer:["‘n rooi tas","n rooi tas","rooi tas","tas"], hint:"*What does she carry?*"},
+        {type:"gap", prompt:"Vul in: Sy eet ‘n ____", answer:["appel"], hint:"*Fill the missing word*"},
+        {type:"mcq", prompt:"Wie groet sy by die hek?", options:["haar suster","Timo","die onderwyser","niemand"], answer:1, hint:"*Who?*"},
+        {type:"short", prompt:"Skryf die sin in die verlede: ‘Luna stap vroeg skool toe.’", answer:["Luna het vroeg skool toe gestap."], hint:"*het + ge‑*"}
+      ],
+      // --- Comprehension 2: max 30 words text ---
+      lees2: [
+        {type:"passage", text:"By die mark koop Bennie vars brood en melk. Hy betaal met kleingeld en dra alles huis toe in ‘n blou sak.", hint:"*Focus on details.*"},
+        {type:"mcq", prompt:"Wat koop Bennie?", options:["koeldrank","brood en melk","lekkers","vrugte"], answer:1, hint:"*What items?*"},
+        {type:"short", prompt:"Waar koop hy dit?", answer:["by die mark","die mark","mark"], hint:"*Where?*"},
+        {type:"gap", prompt:"Vul in: Hy betaal met ____", answer:["kleingeld"], hint:"*payment method*"},
+        {type:"tf", prompt:"Die sak is groen.", answer:false, hint:"*Check the colour.*"},
+        {type:"short", prompt:"Skryf in die toekomende tyd: ‘Hy dra alles huis toe.’", answer:["Hy sal alles huis toe dra."], hint:"*sal + verb at end*"}
+      ]
+    };
+
+    /************* STATE *************/
+    const storeKey = "taaldorpie_g4_state_v2";
+    let STATE = JSON.parse(localStorage.getItem(storeKey) || "{}");
+    if(!STATE.score) STATE = {score:0, completed:{}, last:{}};
+
+    const $ = s=>document.querySelector(s);
+    const mapSec = $("#map"), playSec = $("#play"), levelGrid = $("#levelGrid");
+    const scoreSpan = $("#scoreSpan"), scoreSpan2 = $("#scoreSpan2");
+    const doneSpan = $("#doneSpan"), backBtn = $("#backBtn"), topicPill = $("#topicPill");
+    const prog = $("#prog"), qIndexEl = $("#qIndex"), qTotalEl = $("#qTotal");
+    const hintBtn = $("#hintBtn"), hintArea = $("#hintArea");
+    const checkBtn = $("#checkBtn"), nextBtn = $("#nextBtn");
+    const fb = $("#fb"), qWrap = $("#qWrap"), compWrap = $("#compWrap");
+
+    let currentLevelId = null, Q = [], qi = 0, answered = false, dragBindings = null;
+
+    function save(){ localStorage.setItem(storeKey, JSON.stringify(STATE)); }
+    function refreshMap(){
+      scoreSpan.textContent = STATE.score||0;
+      let doneCount = Object.values(STATE.completed||{}).filter(Boolean).length;
+      doneSpan.textContent = doneCount;
+      levelGrid.innerHTML = "";
+      LEVELS.forEach(l=>{
+        const card = document.createElement("button");
+        card.className = "level";
+        card.innerHTML = `
+          <div class="stars">${STATE.completed[l.id] ? "⭐️⭐️" : "⭐️"}</div>
+          <h3>${l.emoji} ${l.name}</h3>
+          <p>${l.desc}</p>
+          <div class="mini" style="margin-top:8px">ID: <code>${l.id}</code></div>
+        `;
+        card.onclick = ()=>{ playTone("click"); startLevel(l.id); };
+        levelGrid.appendChild(card);
+      });
+    }
+    function startLevel(id){
+      currentLevelId = id;
+      // Handle comprehension passages: keep "passage" item first
+      const bank = [...BANK[id]];
+      const passageItemIndex = bank.findIndex(x=>x.type==="passage");
+      if(passageItemIndex>0){ const p = bank.splice(passageItemIndex,1)[0]; bank.unshift(p); }
+      // For non-comprehension, simple shuffle:
+      Q = shuffle(bank);
+      // If first is passage, keep passage first and shuffle the rest after it
+      if(Q[0] && Q[0].type==="passage"){ const rest = shuffle(Q.slice(1)); Q = [Q[0], ...rest]; }
+      qi = 0;
+      mapSec.classList.add("hidden");
+      playSec.classList.remove("hidden");
+      topicPill.textContent = LEVELS.find(x=>x.id===id).name;
+      renderQ();
+    }
+    function backToMap(){
+      playSec.classList.add("hidden");
+      mapSec.classList.remove("hidden");
+      refreshMap();
+    }
+    backBtn.onclick = ()=>{ playTone("click"); backToMap(); };
+
+    function renderQ(){
+      scoreSpan2.textContent = STATE.score||0;
+      const total = Q.length;
+      qTotalEl.textContent = total;
+      qIndexEl.textContent = qi+1;
+      prog.max = total;
+      prog.value = qi;
+      hintArea.textContent = "";
+      fb.classList.add("hidden");
+      fb.textContent = "";
+      nextBtn.disabled = true;
+      answered = false;
+      dragBindings = null;
+      compWrap.classList.add("hidden"); compWrap.innerHTML = "";
+      qWrap.innerHTML = "";
+
+      const q = Q[qi];
+
+      // Comprehension passage renderer
+      if(q.type==="passage"){
+        const pass = document.createElement("div");
+        pass.className = "card";
+        pass.style.background = "#f7fbff";
+        pass.innerHTML = `<div class="tag">Lees die teks</div><p style="margin:8px 0 0 0; font-size:17px">${q.text}</p>`;
+        compWrap.classList.remove("hidden");
+        compWrap.appendChild(pass);
+        // auto-enable next (no grading) — BUT we still show a "Begin" question:
+        const info = document.createElement("div");
+        info.className = "qtext";
+        info.textContent = "Lees die teks bo. Klik ‘Volgende’ vir die vrae.";
+        qWrap.appendChild(info);
+        nextBtn.disabled = false;
+        checkBtn.disabled = true;
+        hintBtn.disabled = true;
+        nextBtn.onclick = ()=>{ playTone("click"); checkBtn.disabled=false; hintBtn.disabled=false; qi++; renderQ(); };
+        return;
+      } else {
+        checkBtn.disabled = false; hintBtn.disabled = false;
+      }
+
+      const qText = document.createElement("div");
+      qText.className = "qtext";
+      qText.textContent = q.prompt;
+      qWrap.appendChild(qText);
+
+      if(q.type==="mcq"){
+        const box = document.createElement("div"); box.className="options";
+        q._choice = -1;
+        q.options.forEach((opt, idx)=>{
+          const b = document.createElement("div");
+          b.className = "opt";
+          b.textContent = opt;
+          b.onclick = ()=>{
+            playTone("click");
+            [...box.children].forEach(c=>c.classList.remove("selected"));
+            b.classList.add("selected");
+            q._choice = idx;
+          };
+          box.appendChild(b);
+        });
+        qWrap.appendChild(box);
+      }
+      else if(q.type==="short" || q.type==="gap"){
+        const inp = document.createElement("input");
+        inp.className = "input"; inp.placeholder = "Tik jou antwoord hier…";
+        qWrap.appendChild(inp);
+        q._input = inp;
+      }
+      else if(q.type==="tf"){
+        const box = document.createElement("div"); box.className="options";
+        const makeOpt = (label,val)=>{
+          const b = document.createElement("div");
+          b.className="opt"; b.textContent = label;
+          b.onclick = ()=>{
+            playTone("click");
+            [...box.children].forEach(c=>c.classList.remove("selected"));
+            b.classList.add("selected");
+            q._choice = val;
+          };
+          return b;
+        };
+        q._choice = null;
+        box.appendChild(makeOpt("Waar", true));
+        box.appendChild(makeOpt("Onwaar", false));
+        qWrap.appendChild(box);
+      }
+      else if(q.type==="drag"){
+        const info = document.createElement("div");
+        info.innerHTML = `<div class="mini">Sleep die skyfies na die regte STOMPI‑gleuwe.</div>`;
+        qWrap.appendChild(info);
+
+        const chipBar = document.createElement("div"); chipBar.className="chips";
+        q.drag.chips.forEach(text=>{
+          const c = document.createElement("span");
+          c.className = "chip"; c.draggable = true; c.textContent = text; c.dataset.value = text;
+          chipBar.appendChild(c);
+        });
+        qWrap.appendChild(chipBar);
+
+        const grid = document.createElement("div"); grid.className="dropzone";
+        q.drag.slots.forEach(s=>{
+          const slot = document.createElement("div");
+          slot.className = "slot"; slot.dataset.id = s.id;
+          slot.innerHTML = `<div><strong>${s.id}</strong> <span class="mini">(${s.label})</span></div>`;
+          grid.appendChild(slot);
+        });
+        qWrap.appendChild(grid);
+
+        const chips = [...chipBar.querySelectorAll(".chip")];
+        const slots = [...grid.querySelectorAll(".slot")];
+
+        chips.forEach(ch=>{
+          ch.addEventListener("dragstart", ev=>{
+            ev.dataTransfer.setData("text/plain", ch.dataset.value);
+            setTimeout(()=>{ ch.style.opacity="0.4"; },0);
+            initAudio(); // unlock audio on interaction
+          });
+          ch.addEventListener("dragend", ()=>{ ch.style.opacity="1"; });
+        });
+
+        slots.forEach(sl=>{
+          sl.addEventListener("dragover", ev=>{ev.preventDefault(); sl.style.background="#f1f8ff"});
+          sl.addEventListener("dragleave", ()=>{sl.style.background=""});
+          sl.addEventListener("drop", ev=>{
+            ev.preventDefault(); sl.style.background="";
+            const val = ev.dataTransfer.getData("text/plain");
+            if(sl.querySelector(".chip")){
+              const old = sl.querySelector(".chip");
+              chipBar.appendChild(old);
+            }
+            const dragged = chips.find(c=>c.dataset.value===val);
+            if(dragged) {
+              sl.innerHTML = "";
+              sl.classList.add("filled");
+              sl.appendChild(dragged);
+              playTone("click");
+            }
+          });
+        });
+
+        dragBindings = {chipBar, slots};
+      }
+
+      // hint / check / next
+      hintBtn.onclick = ()=>{ hintArea.textContent = q.hint || "*No hint for this one.*"; playTone("click"); };
+      checkBtn.onclick = ()=>{
+        if(answered) return;
+        const ok = grade(q);
+        answered = true;
+        fb.classList.remove("hidden");
+        if(ok){
+          fb.classList.remove("no"); fb.classList.add("ok");
+          fb.textContent = "Mooi so! ✔️";
+          STATE.score = (STATE.score||0) + 10;
+          save();
+          scoreSpan.textContent = STATE.score;
+          scoreSpan2.textContent = STATE.score;
+          playTone("correct");
+        }else{
+          fb.classList.remove("ok"); fb.classList.add("no");
+          fb.textContent = "O nee, probeer weer volgende keer. ❌";
+          playTone("wrong");
+        }
+        nextBtn.disabled = false;
+        prog.value = qi+1;
+      };
+      nextBtn.onclick = ()=>{
+        if(qi < Q.length-1){
+          qi++; playTone("click"); renderQ();
+        }else{
+          STATE.completed[currentLevelId] = true; save();
+          fb.classList.remove("hidden"); fb.classList.remove("no"); fb.classList.add("ok");
+          fb.textContent = "🎉 Onderwerp voltooi! Gaan terug na die kaart vir nog pret.";
+          playTone("complete");
+          setTimeout(backToMap, 900);
+        }
+      };
+    }
+
+    function normalize(a){ return (a||"").toString().trim().toLowerCase(); }
+    function grade(q){
+      if(q.type==="mcq"){ return q._choice === q.answer; }
+      if(q.type==="tf"){ return q._choice === q.answer; }
+      if(q.type==="short" || q.type==="gap"){
+        const v = normalize(q._input.value);
+        const ans = Array.isArray(q.answer)? q.answer : [q.answer];
+        return ans.map(normalize).includes(v);
+      }
+      if(q.type==="drag"){
+        const {slots} = dragBindings;
+        let all = true;
+        slots.forEach((sl,i)=>{
+          const meta = Q[qi].drag.slots[i];
+          const chip = sl.querySelector(".chip");
+          const val = chip ? chip.dataset.value : "";
+          if(val !== meta.answer) all = false;
+        });
+        return all;
+      }
+      return false;
+    }
+
+    function shuffle(a){
+      const arr = [...a];
+      for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+      }
+      return arr;
+    }
+
+    // Build map and start
+    function init(){
+      refreshMap();
+      // Prime audio after first user interaction (mobile policies)
+      window.addEventListener("pointerdown", ()=>initAudio(), {once:true});
+    }
+    init();
+  </script>
+</body>
+</html>
